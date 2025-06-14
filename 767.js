@@ -1,36 +1,28 @@
 var reorganizeString = function(s) {
-    if (s.length < 2) {
-        return s;
+    const n = s.length;
+    const count = new Map();
+    for (const ch of s) {
+        count.set(ch, (count.get(ch) ?? 0) + 1);
     }
 
-    const length = s.length;
-    const counts = _.countBy(s);
-    const maxCount = Math.max(...Object.values(counts));
-    if (maxCount > Math.floor((length + 1) / 2)) {
-        return '';
+    const a = Array.from(count.entries());
+    // 按出现次数从大到小排序
+    a.sort((p, q) => q[1] - p[1]);
+    const m = a[0][1];
+    if (m > n - m + 1) {
+        return "";
     }
 
-    const queue = new MaxPriorityQueue();
-    Object.keys(counts).forEach(x => queue.enqueue(x, counts[x]));
-    let ans = new Array();
-
-    while (queue.size() > 1) {
-        const letter1 = queue.dequeue()['element'];
-        const letter2 = queue.dequeue()['element'];
-        ans = ans.concat(letter1, letter2)
-        counts[letter1]--;
-        counts[letter2]--;
-        if (counts[letter1] > 0) {
-            queue.enqueue(letter1, counts[letter1]);
-        }
-        if (counts[letter2] > 0) {
-            queue.enqueue(letter2, counts[letter2]);
+    const ans = Array(n);
+    let i = 0;
+    for (let [ch, cnt] of a) {
+        while (cnt--) {
+            ans[i] = ch;
+            i += 2;
+            if (i >= n) {
+                i = 1; // 填完偶数填奇数
+            }
         }
     }
-    
-    if (queue.size()) {
-        ans.push(queue.dequeue()['element'])
-    }
-
     return ans.join('');
-};
+}
